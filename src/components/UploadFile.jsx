@@ -3,10 +3,21 @@ import * as XLSX from "xlsx";
 import moment from "moment";
 import "moment/locale/id"; // Import Indonesian locale
 
-const excelSerialToJSDate = (serial) => {
-  if (!serial) return ""; // Handle empty values
-  const excelEpoch = new Date(1900, 0, serial - 1); // Excel starts from 1900-01-01
-  return moment(excelEpoch).locale("id").format("DD-MM-YYYY");
+const convertExcelDate = (excelDate) => {
+  if (!excelDate) return "";
+
+  // If the value is a number, convert from Excel serial date
+  if (!isNaN(excelDate) && excelDate > 40000) {
+    const excelEpoch = new Date(1900, 0, excelDate - 1); // Excel starts from 1900-01-01
+    return moment(excelEpoch).locale("id").format("MM/DD/YYYY");
+  }
+
+  // If it's already a valid date string, format it correctly
+  if (moment(excelDate, ["DD/MM/YY", "DD-MM-YYYY", "YYYY-MM-DD"], true).isValid()) {
+    return moment(excelDate, ["DD/MM/YY", "DD-MM-YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY");
+  }
+
+  return excelDate; // Return as is if format unknown
 };
 
 const ExcelRowToObject = ({ setRowData }) => {
@@ -37,7 +48,7 @@ const ExcelRowToObject = ({ setRowData }) => {
             let row = sheetData[i];
             if (row.length === 0) continue; // Skip empty rows
 
-            let formattedDate = excelSerialToJSDate(row[6]); // Convert Excel date
+            let formattedDate = convertExcelDate(row[7]); // Convert Excel date
 
             let rowObject = {
               name: row[1] || "", // Name
@@ -46,8 +57,9 @@ const ExcelRowToObject = ({ setRowData }) => {
               lat: row[4] ? parseFloat(row[4].split(", ")[0]) : "", // Lat
               lng: row[4] ? parseFloat(row[4].split(", ")[1]) : "", // Lng
               "med/collect": row[5],
+              collectability: row[6] || '-',
               date: formattedDate, // Corrected date conversion
-              description: row[7]
+              description: row[8] || '-'
             };
 
             dataArray.push(rowObject);
@@ -77,7 +89,6 @@ const ExcelRowToObject = ({ setRowData }) => {
         accept=".xlsx, .xls" 
         onChange={handleFileUpload}
         style={{
-          marginTop: "10px",
           padding: "10px",
           border: "1px solid #ccc",
           borderRadius: "5px",

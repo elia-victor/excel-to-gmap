@@ -6,7 +6,7 @@ const DropdownSheetSelector = ({ selectedSheet, setSelectedSheet, rowData }) => 
       {Object.keys(rowData).length > 0 && (
         <>
           <h3>Select a Sheet:</h3>
-          <select value={selectedSheet} onChange={(e) => setSelectedSheet(e.target.value)}>
+          <select style={{ height: '45px', padding: '10px', borderRadius: 5 }} value={selectedSheet} onChange={(e) => setSelectedSheet(e.target.value)}>
             {Object.keys(rowData).map((sheetName) => (
               <option key={sheetName} value={sheetName}>
                 {sheetName}
