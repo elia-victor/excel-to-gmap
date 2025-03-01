@@ -10,14 +10,18 @@ const TableComponent = ({ rowData, selectedSheet }) => {
         <table border="1" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
           <thead>
             <tr>
+              <th>No</th> {/* Number Column */}
               {Object.keys(sheetData[0] || {}).map((key) => (
-                <th key={key}>{key}</th>
+                <th key={key}>
+                  {key.charAt(0).toUpperCase() + key.slice(1)} {/* Capitalize first letter */}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {sheetData.map((row, index) => (
               <tr key={index}>
+                <td>{index + 1}</td> {/* Add Numbering */}
                 {Object.values(row).map((value, i) => (
                   <td key={i}>{value}</td>
                 ))}

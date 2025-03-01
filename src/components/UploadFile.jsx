@@ -1,5 +1,13 @@
 import React from "react";
 import * as XLSX from "xlsx";
+import moment from "moment";
+import "moment/locale/id"; // Import Indonesian locale
+
+const excelSerialToJSDate = (serial) => {
+  if (!serial) return ""; // Handle empty values
+  const excelEpoch = new Date(1900, 0, serial - 1); // Excel starts from 1900-01-01
+  return moment(excelEpoch).locale("id").format("DD-MM-YYYY");
+};
 
 const ExcelRowToObject = ({ setRowData }) => {
   const handleFileUpload = (event) => {
@@ -29,12 +37,17 @@ const ExcelRowToObject = ({ setRowData }) => {
             let row = sheetData[i];
             if (row.length === 0) continue; // Skip empty rows
 
+            let formattedDate = excelSerialToJSDate(row[6]); // Convert Excel date
+
             let rowObject = {
               name: row[1] || "", // Name
               address: row[2] || "", // Address
               fimCode: row[3] || "", // fimCode
               lat: row[4] ? parseFloat(row[4].split(", ")[0]) : "", // Lat
               lng: row[4] ? parseFloat(row[4].split(", ")[1]) : "", // Lng
+              "med/collect": row[5],
+              date: formattedDate, // Corrected date conversion
+              description: row[7]
             };
 
             dataArray.push(rowObject);
@@ -69,7 +82,7 @@ const ExcelRowToObject = ({ setRowData }) => {
           border: "1px solid #ccc",
           borderRadius: "5px",
           cursor: "pointer",
-          display: "block" // Ensures it's centered
+          display: "block"
         }}
       />
     </div>

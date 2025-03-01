@@ -3,13 +3,13 @@ import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/ap
 
 const containerStyle = {
   width: "100%",
-  height: "400px",
+  height: "700px",
 };
 
-const GoogleMapComponent = ({ rowData }) => {
+const GoogleMapComponent = ({ rowData, selectedSheet }) => {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
-	const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -24,23 +24,44 @@ const GoogleMapComponent = ({ rowData }) => {
           console.error("Error getting location: ", error);
         }
       );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
     }
   }, []);
 
+  const markers = rowData[selectedSheet] || [];
+
+  // Function to create a numbered marker icon as a data URL
+  const createNumberedMarker = (number) => {
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
+        <circle cx="25" cy="25" r="20" fill="red" stroke="white" stroke-width="3"/>
+        <text x="50%" y="50%" font-size="18" font-family="Arial" font-weight="bold" fill="white"
+          text-anchor="middle" alignment-baseline="middle">${number}</text>
+      </svg>
+    `;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  };
+
   return (
     <div style={{ marginTop: 50 }}>
-      <LoadScript googleMapsApiKey={apiKey}>  
-        <GoogleMap mapContainerStyle={containerStyle} center={currentLocation} zoom={5}>
-          {rowData.length > 1 &&
-            rowData.map((marker) => (
+      <LoadScript googleMapsApiKey={apiKey}>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={currentLocation || { lat: -6.200000, lng: 106.816666 }}
+          zoom={10}
+        >
+          {markers.map((marker, index) =>
+            marker.lat && marker.lng ? (
               <Marker
-                key={marker.id}
+                key={index}
                 position={{ lat: marker.lat, lng: marker.lng }}
+                icon={{
+                  url: createNumberedMarker(index + 1), // Generate numbered marker
+                  scaledSize: new window.google.maps.Size(40, 40), // Adjust size
+                }}
                 onClick={() => setSelectedMarker(marker)}
               />
-            ))}
+            ) : console.warn(`Invalid marker at index ${index}`, marker)
+          )}
           {selectedMarker && (
             <InfoWindow position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }} onCloseClick={() => setSelectedMarker(null)}>
               <div style={{ color: "black", textAlign: "left" }}>
