@@ -9,6 +9,7 @@ const containerStyle = {
 const GoogleMapComponent = ({ rowData }) => {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
+	const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -30,7 +31,7 @@ const GoogleMapComponent = ({ rowData }) => {
 
   return (
     <div style={{ marginTop: 50 }}>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>  
+      <LoadScript googleMapsApiKey={apiKey}>  
         <GoogleMap mapContainerStyle={containerStyle} center={currentLocation} zoom={5}>
           {rowData.length > 1 &&
             rowData.map((marker) => (
