@@ -57,7 +57,7 @@ const ExcelRowToObject = ({ setRowData }) => {
               lat: row[4] ? parseFloat(row[4].split(", ")[0]) : "", // Lat
               lng: row[4] ? parseFloat(row[4].split(", ")[1]) : "", // Lng
               "med/collect": row[5],
-              collectability: row[6] || '-',
+              collectability: row[6],
               date: formattedDate, // Corrected date conversion
               description: row[8] || '-'
             };
